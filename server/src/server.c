@@ -21,15 +21,21 @@ int main() {
 
     while (1) {
         int connect_d = connect_client(listener_d);
-        char *msg = "YEE\n";
-        if (say(connect_d, msg) != -1) {
-            size_t len = read_in(connect_d, buf, buf_len);
-            printf("%s\n", buf);
-            printf("%zu\n", len);
-            if (len != 0) {
-                close(connect_d);
+
+        if (!fork()) {
+            close(listener_d);
+            char *msg = "YEE\n";
+            if (say(connect_d, msg) != -1) {
+                size_t len = read_in(connect_d, buf, buf_len);
+                printf("%s\n", buf);
+                printf("%zu\n", len);
+                if (len != 0) {
+                    close(connect_d);
+                    exit(0);
+                }
             }
         }
+        close(connect_d);
     }
 }
 
