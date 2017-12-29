@@ -15,4 +15,7 @@ int connect_client(int socket);
 
 size_t read_in(int socket, char *buf, size_t len);
 
+void send_all_clients(int *connections, char *msg, int size);
+
+void *client_work(void *args);
 #endif //SPL_CHAT_SERVER_H

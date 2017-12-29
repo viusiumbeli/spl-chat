@@ -3,11 +3,20 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <stdlib.h>
-#include <zconf.h>
 #include "server.h"
+#include <unistd.h>
+#include <pthread.h>
+
 
 const int port = 3501;
 const int limit_listeners = 10;
+const size_t buf_len = 255;
+
+typedef struct {
+    int connect_d_arg;
+    int *connections_arg;
+    int i_arg;
+} client_work_arguments;
 
 int main() {
     int listener_d = open_listener_socket();
@@ -16,26 +25,47 @@ int main() {
 
     set_limit_listeners(listener_d);
 
-    size_t buf_len = 255;
-    char buf[buf_len];
+    pthread_t *streams = malloc(sizeof(pthread_t) * limit_listeners);
+    int *connections = malloc(sizeof(int) * limit_listeners);
 
+    client_work_arguments *args = malloc(sizeof(args));
+
+    int i = 0;
     while (1) {
         int connect_d = connect_client(listener_d);
-
-        if (!fork()) {
-            close(listener_d);
-            char *msg = "YEE\n";
-            if (say(connect_d, msg) != -1) {
-                size_t len = read_in(connect_d, buf, buf_len);
-                printf("%s\n", buf);
-                printf("%zu\n", len);
-                if (len != 0) {
-                    close(connect_d);
-                    exit(0);
-                }
-            }
+        connections[i++] = connect_d;
+        args->connect_d_arg = connect_d;
+        args->connections_arg = connections;
+        args->i_arg = i;
+        if (pthread_create(&streams[i], NULL, client_work, args) == -1) {
+            error("Can't create steam");
         }
-        close(connect_d);
+        if (i >= 10) {
+            break;
+        }
+    }
+}
+
+void *client_work(void *args) {
+    char *msg = "YEE\n";
+    client_work_arguments *actual_args = args;
+    if (say(actual_args->connect_d_arg, msg) != -1) {
+        while (1) {
+            char *buf = malloc(buf_len);
+            size_t len = read_in(actual_args->connect_d_arg, buf, buf_len);
+            send_all_clients(actual_args->connections_arg, buf, actual_args->i_arg);
+            if (strcmp("exit\r\n", buf) == 0) {
+                close(actual_args->connect_d_arg);
+                break;
+            }
+            printf("%s", buf);
+        }
+    }
+}
+
+void send_all_clients(int *connections, char *msg, int size) {
+    for (int i = 0; i < size; ++i) {
+        say(connections[i], msg);
     }
 }
 
@@ -48,7 +78,6 @@ size_t read_in(int socket, char *buf, size_t len) {
         s += c;
         slen -= c;
         c = recv(socket, s, slen, 0);
-        printf("!");
     }
     if (c < 0) {
         printf("An error occurred while receiving the message\n");
@@ -56,7 +85,7 @@ size_t read_in(int socket, char *buf, size_t len) {
         if (c == 0) {
             buf[0] = '\0';
         } else {
-            s[c - 1] = '\0';
+//            s[c - 1] = '\0';
         }
     }
     return len - slen;
