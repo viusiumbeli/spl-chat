@@ -49,13 +49,14 @@ int main() {
 void *client_work(void *args) {
     char *msg = "YEE\n";
     client_work_arguments *actual_args = args;
-    if (say(actual_args->connect_d_arg, msg) != -1) {
+    int actual_connect_d = actual_args->connect_d_arg;
+    if (say(actual_connect_d, msg) != -1) {
         while (1) {
             char *buf = malloc(buf_len);
-            size_t len = read_in(actual_args->connect_d_arg, buf, buf_len);
+            read_in(actual_connect_d, buf, buf_len);
             send_all_clients(actual_args->connections_arg, buf, actual_args->i_arg);
             if (strcmp("exit\r\n", buf) == 0) {
-                close(actual_args->connect_d_arg);
+                close(actual_connect_d);
                 break;
             }
             printf("%s", buf);
