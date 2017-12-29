@@ -3,6 +3,7 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <stdlib.h>
+#include <zconf.h>
 #include "server.h"
 
 const int port = 3501;
@@ -15,12 +16,44 @@ int main() {
 
     set_limit_listeners(listener_d);
 
-    int connect_d = connect_client(listener_d);
+    size_t buf_len = 255;
+    char buf[buf_len];
 
-    char *msg = "YEE\n";
-    say(connect_d, msg);
+    while (1) {
+        int connect_d = connect_client(listener_d);
+        char *msg = "YEE\n";
+        if (say(connect_d, msg) != -1) {
+            size_t len = read_in(connect_d, buf, buf_len);
+            printf("%s\n", buf);
+            printf("%zu\n", len);
+            if (len != 0) {
+                close(connect_d);
+            }
+        }
+    }
+}
 
-    return 0;
+size_t read_in(int socket, char *buf, size_t len) {
+    char *s = buf;
+    size_t slen = len;
+    ssize_t c = recv(socket, s, slen, 0);
+    slen -= c;
+    while ((c > 0) && (s[c - 1] != '\n')) {
+        s += c;
+        slen -= c;
+        c = recv(socket, s, slen, 0);
+        printf("!");
+    }
+    if (c < 0) {
+        printf("An error occurred while receiving the message\n");
+    } else {
+        if (c == 0) {
+            buf[0] = '\0';
+        } else {
+            s[c - 1] = '\0';
+        }
+    }
+    return len - slen;
 }
 
 int connect_client(int socket) {
@@ -75,12 +108,14 @@ void bind_to_port(int socket) {
     }
 }
 
-void say(int socket, char *s) {
-    if (send(socket, s, strlen(s), 0) == -1) {
-        error("An error occurred while sending the message");
+ssize_t say(int socket, char *s) {
+    ssize_t result = send(socket, s, strlen(s), 0);
+    if (result == -1) {
+        printf("An error occurred while sending the message");
     } else {
         printf("Sent the message\n");
     }
+    return result;
 }
 
 void error(char *msg) {
