@@ -17,7 +17,7 @@ int connect_client(int socket);
 
 size_t read_in(int socket, char *buf, size_t len);
 
-void send_all_clients(char *msg, node_t *list);
+void send_all_clients(char *msg, node_t *list, int connect_d);
 
 void *client_work(void *args);
 

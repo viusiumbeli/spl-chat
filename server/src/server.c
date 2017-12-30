@@ -48,7 +48,7 @@ void *client_work(void *args) {
         while (1) {
             char *buf = malloc(buf_len);
             read_in(actual_connect_d, buf, buf_len);
-            send_all_clients(buf, actual_args->node);
+            send_all_clients(buf, actual_args->node, actual_connect_d);
             if (strcmp("exit\r\n", buf) == 0) {
                 close(actual_connect_d);
                 remove_node(actual_args->node, actual_connect_d);
@@ -59,10 +59,12 @@ void *client_work(void *args) {
     }
 }
 
-void send_all_clients(char *msg, node_t *list) {
+void send_all_clients(char *msg, node_t *list, int connect_d) {
     while (list->next != NULL) {
         list = list->next;
-        say(list->val, msg);
+        if (list->val != connect_d) {
+            say(list->val, msg);
+        }
     }
 }
 
