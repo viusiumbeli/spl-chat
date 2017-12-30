@@ -45,14 +45,18 @@ void *client_work(void *args) {
     if (send_to_client_all_messages(actual_connect_d, actual_args->conn) != -1) {
         while (1) {
             char *buf = malloc(buf_len);
-            read_in(actual_connect_d, buf, buf_len);
+            size_t len = read_in(actual_connect_d, buf, buf_len);
             send_all_clients(buf, actual_args->node, actual_connect_d);
-            if (strcmp("exit\r\n", buf) == 0) {
+            if (strncmp("exit", buf, len - 1) == 0) {
                 close(actual_connect_d);
                 remove_node(actual_args->node, actual_connect_d);
+                printf("STOP:::\n");
                 break;
+            } else {
+                if (save_message(buf, actual_args->conn)) {
+                    printf("Error: %s [%d]\n", mysql_error(actual_args->conn), mysql_errno(actual_args->conn));
+                }
             }
-            printf("%s", buf);
         }
     }
 }
@@ -64,7 +68,7 @@ int send_to_client_all_messages(int connect_d, MYSQL *conn) {
     res = mysql_store_result(conn);
     while ((row = mysql_fetch_row(res))) {
         say(connect_d, row[1]);
-        say(connect_d, "\n");
+        say(connect_d, "\r\n");
     }
 
     mysql_free_result(res);
@@ -77,6 +81,7 @@ void send_all_clients(char *msg, node_t *list, int connect_d) {
         list = list->next;
         if (list->val != connect_d) {
             say(list->val, msg);
+            say(list->val, "\r\n");
         }
     }
 }
@@ -97,7 +102,8 @@ size_t read_in(int socket, char *buf, size_t len) {
         if (c == 0) {
             buf[0] = '\0';
         } else {
-//            s[c - 1] = '\0';
+            s[c - 1] = '\0';
+            ++slen;
         }
     }
     return len - slen;

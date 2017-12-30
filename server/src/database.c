@@ -36,6 +36,18 @@ int get_all_rows(MYSQL *conn, char *table_name) {
     return mysql_query(conn, query);
 }
 
+int save_message(char *buf, MYSQL *conn) {
+    const char *insert_query = "insert into messages (message) values(\"";
+    size_t query_size = strlen(insert_query) + strlen(buf);
+    char *insert_query_with_msg = malloc(query_size);
+    char *query = malloc(query_size+3);
+    snprintf(insert_query_with_msg, query_size, "%s%s", insert_query, buf);
+    snprintf(query, query_size+3, "%s\");", insert_query_with_msg);
+    printf("%s\n", query);
+    return mysql_query(conn, query);
+}
+
+
 void create_tables(MYSQL *conn) {
     if (!create_messages_table(conn)) {
         printf("Error: %s [%d]\n", mysql_error(conn), mysql_errno(conn));

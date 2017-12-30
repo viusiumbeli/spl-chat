@@ -23,6 +23,8 @@ void print_database_info();
 
 int get_all_rows(MYSQL *conn, char *table_name);
 
+int save_message(char *buf, MYSQL *conn);
+
 void create_tables(MYSQL *conn);
 
 
