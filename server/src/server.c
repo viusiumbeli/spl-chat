@@ -51,7 +51,7 @@ void *client_work(void *args) {
             send_all_clients(buf, actual_args->node);
             if (strcmp("exit\r\n", buf) == 0) {
                 close(actual_connect_d);
-//                remove_node(actual_connect_d);
+                remove_node(actual_args->node, actual_connect_d);
                 break;
             }
             printf("%s", buf);
@@ -64,7 +64,6 @@ void send_all_clients(char *msg, node_t *list) {
         list = list->next;
         say(list->val, msg);
     }
-
 }
 
 size_t read_in(int socket, char *buf, size_t len) {

@@ -16,6 +16,18 @@ void add_node(node_t *node, int value) {
 
 }
 
+void remove_node(node_t *node, int value) {
+    node_t *previous;
+    while (node->next != NULL) {
+        previous = node;
+        node = node->next;
+        if (node->val == value) {
+            previous->next = node->next;
+        }
+    }
+    printf("\n");
+}
+
 void print_list(node_t *node) {
     printf("{list}\n");
     while (node->next != NULL) {
