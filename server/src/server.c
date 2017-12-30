@@ -48,7 +48,7 @@ void *client_work(void *args) {
         while (1) {
             char *buf = malloc(buf_len);
             size_t len = read_in(actual_connect_d, buf, buf_len);
-            send_all_clients(buf, actual_args->node, actual_connect_d);
+            send_all_clients(buf, actual_args->node, actual_connect_d, name);
             if (strncmp("exit", buf, len - 1) == 0) {
                 close(actual_connect_d);
                 remove_node(actual_args->node, actual_connect_d);
@@ -76,23 +76,34 @@ char *register_new_client(MYSQL *conn, int connect_d) {
 int send_to_client_all_messages(int connect_d, MYSQL *conn) {
     MYSQL_RES *res;
     MYSQL_ROW row;
-    get_all_rows(conn, "messages");
+    get_all_messages_with_author(conn);
     res = mysql_store_result(conn);
+    char *full_msg;
     while ((row = mysql_fetch_row(res))) {
-        say(connect_d, row[1]);
-        say(connect_d, "\r\n");
+        full_msg = malloc(strlen(row[0]) + strlen(row[1]) + 4);
+        strcat(full_msg, row[1]);
+        strcat(full_msg, ": ");
+        strcat(full_msg, row[0]);
+        strcat(full_msg, "\r\n");
+        say(connect_d, full_msg);
     }
 
     mysql_free_result(res);
     return 0;
 }
 
-void send_all_clients(char *msg, node_t *list, int connect_d) {
+void send_all_clients(char *msg, node_t *list, int connect_d, char *name) {
+    char *full_msg;
     while (list->next != NULL) {
         list = list->next;
         if (list->val != connect_d) {
-            say(list->val, msg);
-            say(list->val, "\r\n");
+            full_msg = malloc(strlen(msg) + strlen(name) + 4);
+            strcat(full_msg, name);
+            strcat(full_msg, ": ");
+            strcat(full_msg, msg);
+            strcat(full_msg, "\r\n");
+            say(list->val, full_msg);
+            free(full_msg);
         }
     }
 }

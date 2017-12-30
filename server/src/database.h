@@ -21,7 +21,7 @@ int create_messages_table(MYSQL *conn);
 
 void print_database_info();
 
-int get_all_rows(MYSQL *conn, char *table_name);
+int get_all_messages_with_author(MYSQL *conn);
 
 int save_message(char *buf, MYSQL *conn, char *name);
 

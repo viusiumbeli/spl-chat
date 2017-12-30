@@ -1,4 +1,3 @@
-
 #include <string.h>
 #include "database.h"
 
@@ -38,13 +37,10 @@ int create_users_table(MYSQL *conn) {
     );
 }
 
-int get_all_rows(MYSQL *conn, char *table_name) {
-    const char *select_all = "select * from ";
-    size_t query_size = strlen(select_all) + strlen(table_name) + 2;
-    char *query = malloc(query_size);
-    snprintf(query, query_size, "%s%s;", select_all, table_name);
-    printf("%s\n", query);
-    return mysql_query(conn, query);
+int get_all_messages_with_author(MYSQL *conn) {
+    return mysql_query(conn, "select messages.message, users.name "
+            "from messages "
+            "inner join users on messages.user_id=users.id");
 }
 
 int save_message(char *buf, MYSQL *conn, char *name) {
@@ -57,7 +53,6 @@ int save_message(char *buf, MYSQL *conn, char *name) {
     if (strcmp(row[0], "0") != 0) {
         user_id = row[0];
     }
-    mysql_free_result(res);
 
     const char *insert_query = "insert into messages (message, user_id) values(\"";
     size_t query_size = strlen(insert_query) + strlen(buf);
@@ -95,16 +90,21 @@ int create_new_user(char *buf, MYSQL *conn) {
 }
 
 void create_tables(MYSQL *conn) {
+    MYSQL_RES *res;
     if (!create_messages_table(conn)) {
         printf("Error: %s [%d]\n", mysql_error(conn), mysql_errno(conn));
     } else {
         printf("Messages table created\n");
+        res = mysql_store_result(conn);
+        mysql_free_result(res);
     }
 
     if (!create_users_table(conn)) {
         printf("Error: %s [%d]\n", mysql_error(conn), mysql_errno(conn));
     } else {
         printf("Users table created\n");
+        res = mysql_store_result(conn);
+        mysql_free_result(res);
     }
 }
 
