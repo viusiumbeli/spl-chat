@@ -7,16 +7,9 @@
 #include <unistd.h>
 #include <pthread.h>
 
-
 const int port = 3501;
 const int limit_listeners = 10;
 const size_t buf_len = 255;
-
-typedef struct {
-    int connect_d_arg;
-    int *connections_arg;
-    int i_arg;
-} client_work_arguments;
 
 int main() {
     int listener_d = open_listener_socket();
@@ -26,17 +19,18 @@ int main() {
     set_limit_listeners(listener_d);
 
     pthread_t *streams = malloc(sizeof(pthread_t) * limit_listeners);
-    int *connections = malloc(sizeof(int) * limit_listeners);
 
+    node_t *list = malloc(sizeof(node_t));
+    list->next = NULL;
     client_work_arguments *args = malloc(sizeof(args));
 
     int i = 0;
     while (1) {
         int connect_d = connect_client(listener_d);
-        connections[i++] = connect_d;
+        add_node(list, connect_d);
         args->connect_d_arg = connect_d;
-        args->connections_arg = connections;
-        args->i_arg = i;
+        args->node = list;
+        print_list(list);
         if (pthread_create(&streams[i], NULL, client_work, args) == -1) {
             error("Can't create steam");
         }
@@ -54,9 +48,10 @@ void *client_work(void *args) {
         while (1) {
             char *buf = malloc(buf_len);
             read_in(actual_connect_d, buf, buf_len);
-            send_all_clients(actual_args->connections_arg, buf, actual_args->i_arg);
+            send_all_clients(buf, actual_args->node);
             if (strcmp("exit\r\n", buf) == 0) {
                 close(actual_connect_d);
+//                remove_node(actual_connect_d);
                 break;
             }
             printf("%s", buf);
@@ -64,10 +59,12 @@ void *client_work(void *args) {
     }
 }
 
-void send_all_clients(int *connections, char *msg, int size) {
-    for (int i = 0; i < size; ++i) {
-        say(connections[i], msg);
+void send_all_clients(char *msg, node_t *list) {
+    while (list->next != NULL) {
+        list = list->next;
+        say(list->val, msg);
     }
+
 }
 
 size_t read_in(int socket, char *buf, size_t len) {
@@ -147,7 +144,7 @@ void bind_to_port(int socket) {
 ssize_t say(int socket, char *s) {
     ssize_t result = send(socket, s, strlen(s), 0);
     if (result == -1) {
-        printf("An error occurred while sending the message");
+        printf("An error occurred while sending the message\n");
     } else {
         printf("Sent the message\n");
     }
