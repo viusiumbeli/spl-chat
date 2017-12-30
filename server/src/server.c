@@ -1,14 +1,12 @@
 #include "server.h"
 
+
 int main() {
     MYSQL *conn = connect_to_database();
-
     print_database_info();
-
     create_tables(conn);
 
     printf("\n");
-
 
 
     int listener_d = open_listener_socket();
@@ -29,6 +27,7 @@ int main() {
         add_node(list, connect_d);
         args->connect_d_arg = connect_d;
         args->node = list;
+        args->conn = conn;
         print_list(list);
         if (pthread_create(&streams[i], NULL, client_work, args) == -1) {
             error("Can't create steam");
@@ -37,13 +36,13 @@ int main() {
             break;
         }
     }
+    mysql_close(conn);
 }
 
 void *client_work(void *args) {
-    char *msg = "YEE\n";
     client_work_arguments *actual_args = args;
     int actual_connect_d = actual_args->connect_d_arg;
-    if (say(actual_connect_d, msg) != -1) {
+    if (send_to_client_all_messages(actual_connect_d, actual_args->conn) != -1) {
         while (1) {
             char *buf = malloc(buf_len);
             read_in(actual_connect_d, buf, buf_len);
@@ -56,6 +55,21 @@ void *client_work(void *args) {
             printf("%s", buf);
         }
     }
+}
+
+int send_to_client_all_messages(int connect_d, MYSQL *conn) {
+    MYSQL_RES *res;
+    MYSQL_ROW row;
+    get_all_rows(conn, "messages");
+    res = mysql_store_result(conn);
+    while ((row = mysql_fetch_row(res))) {
+        say(connect_d, row[1]);
+        say(connect_d, "\n");
+    }
+
+    mysql_free_result(res);
+
+    return 0;
 }
 
 void send_all_clients(char *msg, node_t *list, int connect_d) {

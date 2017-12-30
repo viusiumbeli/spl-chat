@@ -1,4 +1,5 @@
 
+#include <string.h>
 #include "database.h"
 
 MYSQL *connect_to_database() {
@@ -26,6 +27,15 @@ int create_messages_table(MYSQL *conn) {
     );
 }
 
+int get_all_rows(MYSQL *conn, char *table_name) {
+    const char *select_all = "select * from ";
+    size_t query_size = strlen(select_all) + strlen(table_name) + 2;
+    char *query = malloc(query_size);
+    snprintf(query, query_size, "%s%s;", select_all, table_name);
+    printf("%s\n", query);
+    return mysql_query(conn, query);
+}
+
 void create_tables(MYSQL *conn) {
     if (!create_messages_table(conn)) {
         printf("Error: %s [%d]\n", mysql_error(conn), mysql_errno(conn));
@@ -33,3 +43,4 @@ void create_tables(MYSQL *conn) {
         printf("Messages table created\n");
     }
 }
+

@@ -32,9 +32,12 @@ void send_all_clients(char *msg, node_t *list, int connect_d);
 
 void *client_work(void *args);
 
+int send_to_client_all_messages(int connect_d, MYSQL *conn);
+
 typedef struct {
     int connect_d_arg;
     node_t *node;
+    MYSQL *conn;
 } client_work_arguments;
 
 #endif //SPL_CHAT_SERVER_H

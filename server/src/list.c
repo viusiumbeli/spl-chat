@@ -29,10 +29,10 @@ void remove_node(node_t *node, int value) {
 }
 
 void print_list(node_t *node) {
-    printf("{list}\n");
+    printf("{connections}\n");
     while (node->next != NULL) {
         node = node->next;
         printf("%i\n", node->val);
     }
-    printf("{list}\n");
+    printf("{connections}\n");
 }

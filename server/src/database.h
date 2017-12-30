@@ -21,6 +21,8 @@ int create_messages_table(MYSQL *conn);
 
 void print_database_info();
 
+int get_all_rows(MYSQL *conn, char *table_name);
+
 void create_tables(MYSQL *conn);
 
 
