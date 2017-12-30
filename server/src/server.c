@@ -3,7 +3,12 @@
 int main() {
     MYSQL *conn = connect_to_database();
 
-    printf("MySQL client version: %s\n", mysql_get_client_info());
+    print_database_info();
+
+    create_tables(conn);
+
+    printf("\n");
+
 
 
     int listener_d = open_listener_socket();

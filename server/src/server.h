@@ -7,8 +7,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <pthread.h>
-//#include <mysql/my_global.h>
-#include <mysql/mysql.h>
 #include "list.h"
 #include "database.h"
 
