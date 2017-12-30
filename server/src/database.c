@@ -23,7 +23,11 @@ void print_database_info() {
 int create_messages_table(MYSQL *conn) {
     return mysql_query(conn, "create table messages("
             "id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,"
-            "message TEXT);"
+            "message TEXT,"
+            "user_id INT,"
+            "FOREIGN KEY (user_id)\n"
+            "        REFERENCES users(id)\n"
+            "        ON DELETE CASCADE);"
     );
 }
 
@@ -43,19 +47,33 @@ int get_all_rows(MYSQL *conn, char *table_name) {
     return mysql_query(conn, query);
 }
 
-int save_message(char *buf, MYSQL *conn) {
-    const char *insert_query = "insert into messages (message) values(\"";
+int save_message(char *buf, MYSQL *conn, char *name) {
+    char *user_id = "0";
+    MYSQL_RES *res;
+    MYSQL_ROW row;
+    select_user_by_name(name, conn);
+    res = mysql_store_result(conn);
+    row = mysql_fetch_row(res);
+    if (strcmp(row[0], "0") != 0) {
+        user_id = row[0];
+    }
+    mysql_free_result(res);
+
+    const char *insert_query = "insert into messages (message, user_id) values(\"";
     size_t query_size = strlen(insert_query) + strlen(buf);
     char *insert_query_with_msg = malloc(query_size);
     char *query = malloc(query_size + 3);
     snprintf(insert_query_with_msg, query_size, "%s%s", insert_query, buf);
-    snprintf(query, query_size + 3, "%s\");", insert_query_with_msg);
+    query_size += strlen(user_id) + 2;
+    char *insert_query_with_user_id = malloc(query_size);
+    snprintf(insert_query_with_user_id, query_size, "%s\",%s", insert_query_with_msg, user_id);
+    snprintf(query, query_size + 3, "%s);", insert_query_with_user_id);
     printf("%s\n", query);
     return mysql_query(conn, query);
 }
 
 int select_user_by_name(char *buf, MYSQL *conn) {
-    const char *select_one = "select count(*) from users where name=\"";
+    const char *select_one = "select id from users where name=\"";
     size_t query_size = strlen(select_one) + strlen(buf);
     char *insert_query_with_msg = malloc(query_size);
     char *query = malloc(query_size + 2);

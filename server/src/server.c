@@ -42,7 +42,7 @@ void *client_work(void *args) {
     client_work_arguments *actual_args = args;
     int actual_connect_d = actual_args->connect_d_arg;
 
-    register_new_client(actual_args->conn, actual_connect_d);
+    char *name = register_new_client(actual_args->conn, actual_connect_d);
 
     if (send_to_client_all_messages(actual_connect_d, actual_args->conn) != -1) {
         while (1) {
@@ -54,7 +54,7 @@ void *client_work(void *args) {
                 remove_node(actual_args->node, actual_connect_d);
                 break;
             } else {
-                if (save_message(buf, actual_args->conn)) {
+                if (save_message(buf, actual_args->conn, name)) {
                     printf("Error: %s [%d]\n", mysql_error(actual_args->conn), mysql_errno(actual_args->conn));
                 }
             }
@@ -62,13 +62,15 @@ void *client_work(void *args) {
     }
 }
 
-void register_new_client(MYSQL *conn, int connect_d) {
+char *register_new_client(MYSQL *conn, int connect_d) {
     if (say(connect_d, "Enter your name") != -1) {
         say(connect_d, "\r\n");
         char *buf = malloc(buf_len);
         read_in(connect_d, buf, buf_len);
         create_new_user(buf, conn);
+        return buf;
     }
+    return "UNDEFINED";
 }
 
 int send_to_client_all_messages(int connect_d, MYSQL *conn) {

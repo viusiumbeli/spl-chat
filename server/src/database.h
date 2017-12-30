@@ -23,7 +23,7 @@ void print_database_info();
 
 int get_all_rows(MYSQL *conn, char *table_name);
 
-int save_message(char *buf, MYSQL *conn);
+int save_message(char *buf, MYSQL *conn, char *name);
 
 int create_users_table(MYSQL *conn);
 
