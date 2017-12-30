@@ -1,11 +1,14 @@
 CC=gcc
 CFLAGS= -std=c11
 
-all: server.o list.o
-	$(CC) $(CFLAGS) -pthread ./build/server.o ./build/list.o -o ./build/server
+all: server.o list.o database.o
+	$(CC) $(CFLAGS) -pthread ./build/server.o ./build/database.o ./build/list.o $(shell mysql_config --libs) -o ./build/server $(shell mysql_config --cflags)
 
 server.o:
 	$(CC) $(CFLAGS) -pthread -c ./src/server.c -o ./build/server.o
+
+database.o:
+	$(CC) $(CFLAGS) -c ./src/database.c -o ./build/database.o
 
 list.o:
 	$(CC) $(CFLAGS) -c ./src/list.c -o ./build/list.o

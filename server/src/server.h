@@ -1,7 +1,20 @@
 #ifndef SPL_CHAT_SERVER_H
 #define SPL_CHAT_SERVER_H
 
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <pthread.h>
+//#include <mysql/my_global.h>
+#include <mysql/mysql.h>
 #include "list.h"
+#include "database.h"
+
+const int port = 3501;
+const int limit_listeners = 10;
+const size_t buf_len = 255;
 
 ssize_t say(int socket, char *s);
 

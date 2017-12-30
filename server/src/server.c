@@ -1,17 +1,11 @@
-#include <stdio.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <string.h>
-#include <stdlib.h>
 #include "server.h"
-#include <unistd.h>
-#include <pthread.h>
-
-const int port = 3501;
-const int limit_listeners = 10;
-const size_t buf_len = 255;
 
 int main() {
+    MYSQL *conn = connect_to_database();
+
+    printf("MySQL client version: %s\n", mysql_get_client_info());
+
+
     int listener_d = open_listener_socket();
 
     bind_to_port(listener_d);
