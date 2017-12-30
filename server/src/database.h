@@ -25,6 +25,12 @@ int get_all_rows(MYSQL *conn, char *table_name);
 
 int save_message(char *buf, MYSQL *conn);
 
+int create_users_table(MYSQL *conn);
+
+int select_user_by_name(char *buf, MYSQL *conn);
+
+int create_new_user (char *buf, MYSQL *conn);
+
 void create_tables(MYSQL *conn);
 
 

@@ -34,6 +34,8 @@ void *client_work(void *args);
 
 int send_to_client_all_messages(int connect_d, MYSQL *conn);
 
+void register_new_client(MYSQL *conn, int connect_d);
+
 typedef struct {
     int connect_d_arg;
     node_t *node;

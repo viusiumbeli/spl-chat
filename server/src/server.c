@@ -1,6 +1,5 @@
 #include "server.h"
 
-
 int main() {
     MYSQL *conn = connect_to_database();
     print_database_info();
@@ -30,7 +29,7 @@ int main() {
         args->conn = conn;
         print_list(list);
         if (pthread_create(&streams[i], NULL, client_work, args) == -1) {
-            error("Can't create steam");
+            error("Can't create stream");
         }
         if (i >= 10) {
             break;
@@ -42,6 +41,9 @@ int main() {
 void *client_work(void *args) {
     client_work_arguments *actual_args = args;
     int actual_connect_d = actual_args->connect_d_arg;
+
+    register_new_client(actual_args->conn, actual_connect_d);
+
     if (send_to_client_all_messages(actual_connect_d, actual_args->conn) != -1) {
         while (1) {
             char *buf = malloc(buf_len);
@@ -50,7 +52,6 @@ void *client_work(void *args) {
             if (strncmp("exit", buf, len - 1) == 0) {
                 close(actual_connect_d);
                 remove_node(actual_args->node, actual_connect_d);
-                printf("STOP:::\n");
                 break;
             } else {
                 if (save_message(buf, actual_args->conn)) {
@@ -58,6 +59,15 @@ void *client_work(void *args) {
                 }
             }
         }
+    }
+}
+
+void register_new_client(MYSQL *conn, int connect_d) {
+    if (say(connect_d, "Enter your name") != -1) {
+        say(connect_d, "\r\n");
+        char *buf = malloc(buf_len);
+        read_in(connect_d, buf, buf_len);
+        create_new_user(buf, conn);
     }
 }
 
@@ -72,7 +82,6 @@ int send_to_client_all_messages(int connect_d, MYSQL *conn) {
     }
 
     mysql_free_result(res);
-
     return 0;
 }
 
