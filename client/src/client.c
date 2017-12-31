@@ -64,7 +64,7 @@ void *receive_message(void *args) {
             printf("Either Connection Closed or Error\n");
             break;
         }
-        printf("%s\n", buffer);
+        printf("%.*s", (int) num, buffer);
     }
     close(actual_args->socket_fd);
 }

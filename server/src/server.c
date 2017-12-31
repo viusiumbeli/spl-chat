@@ -44,7 +44,7 @@ void *client_work(void *args) {
 
     char *name = register_new_client(actual_args->conn, actual_connect_d);
 
-//    if (send_to_client_all_messages(actual_connect_d, actual_args->conn) != -1) {
+    if (send_to_client_all_messages(actual_connect_d, actual_args->conn) != -1) {
 //        while (1) {
 //            char *buf = malloc(buf_len);
 //            size_t len = read_in(actual_connect_d, buf, buf_len);
@@ -59,11 +59,11 @@ void *client_work(void *args) {
 //                }
 //            }
 //        }
-//    }
+    }
 }
 
 char *register_new_client(MYSQL *conn, int connect_d) {
-    if (say(connect_d, "Enter your name") != -1) {
+    if (say(connect_d, "Enter your name\n") != -1) {
         char *buf = malloc(buf_len);
         read_in(connect_d, buf, buf_len);
         create_new_user(buf, conn);

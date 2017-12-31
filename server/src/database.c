@@ -81,13 +81,17 @@ int select_user_by_name(char *buf, MYSQL *conn) {
 int create_new_user(char *buf, MYSQL *conn) {
     const char *insert_query = "insert into users (name) values(\"";
     char *query = malloc(strlen(insert_query) + strlen(buf) + 3);
-    strcat(query, insert_query);
-    strcat(query, buf);
-    strcat(query, "\");");
-    printf("%s\n", query);
-    int res = mysql_query(conn, query);
-    free(query);
-    return res;
+    if (!query) {
+        printf("Allocation in create_new_user failure\n");
+    } else {
+        strcat(query, insert_query);
+        strcat(query, buf);
+        strcat(query, "\");");
+        printf("%s\n", query);
+        int res = mysql_query(conn, query);
+        free(query);
+        return res;
+    }
 }
 
 void create_tables(MYSQL *conn) {
