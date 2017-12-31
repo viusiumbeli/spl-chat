@@ -21,6 +21,7 @@ typedef struct {
     int socket_fd;
 } client_send_arguments;
 
+int stop_flag=0;
 
 void error(char *msg);
 

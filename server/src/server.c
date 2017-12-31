@@ -43,22 +43,29 @@ void *client_work(void *args) {
     int actual_connect_d = actual_args->connect_d_arg;
 
     char *name = register_new_client(actual_args->conn, actual_connect_d);
+    char *buf;
 
     if (send_to_client_all_messages(actual_connect_d, actual_args->conn) != -1) {
-//        while (1) {
-//            char *buf = malloc(buf_len);
-//            size_t len = read_in(actual_connect_d, buf, buf_len);
-//            send_all_clients(buf, actual_args->node, actual_connect_d, name);
-//            if (strncmp("exit", buf, len - 1) == 0) {
-//                close(actual_connect_d);
-//                remove_node(actual_args->node, actual_connect_d);
-//                break;
+        while (1) {
+            buf = calloc(buf_len, 1);
+            size_t len = read_in(actual_connect_d, buf, buf_len);
+            send_all_clients(buf, actual_args->node, actual_connect_d, name);
+            if (strcmp("exit", buf) == 0) {
+                close(actual_connect_d);
+                remove_node(actual_args->node, actual_connect_d);
+                break;
+            }
+//            else {
+//            if (save_message(buf, actual_args->conn, name)) {
+//                printf("Error: %s [%d]\n", mysql_error(actual_args->conn), mysql_errno(actual_args->conn));
 //            } else {
-//                if (save_message(buf, actual_args->conn, name)) {
-//                    printf("Error: %s [%d]\n", mysql_error(actual_args->conn), mysql_errno(actual_args->conn));
-//                }
+//                MYSQL_RES *res = mysql_store_result(actual_args->conn);
+//                mysql_free_result(res);
+
 //            }
-//        }
+//            }
+            free(buf);
+        }
     }
 }
 
@@ -99,7 +106,7 @@ void send_all_clients(char *msg, node_t *list, int connect_d, char *name) {
             strcat(full_msg, name);
             strcat(full_msg, ": ");
             strcat(full_msg, msg);
-            strcat(full_msg, "\r\n");
+            strcat(full_msg, "\n");
             say(list->val, full_msg);
             free(full_msg);
         }

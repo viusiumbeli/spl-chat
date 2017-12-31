@@ -25,7 +25,6 @@ void remove_node(node_t *node, int value) {
             previous->next = node->next;
         }
     }
-    printf("\n");
 }
 
 void print_list(node_t *node) {

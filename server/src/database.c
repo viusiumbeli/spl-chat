@@ -47,36 +47,36 @@ int save_message(char *buf, MYSQL *conn, char *name) {
     char *user_id = "0";
     MYSQL_RES *res;
     MYSQL_ROW row;
-    if (!select_user_by_name(name, conn)) {
-        printf("Error: %s [%d]\n", mysql_error(conn), mysql_errno(conn));
+    if (select_user_by_name(name, conn)) {
+        printf("Error2: %s [%d]\n", mysql_error(conn), mysql_errno(conn));
     } else {
         res = mysql_store_result(conn);
         row = mysql_fetch_row(res);
         if (strcmp(row[0], "0") != 0) {
             user_id = row[0];
         }
-        printf("%p\n", row);
     }
 
     const char *insert_query = "insert into messages (message, user_id) values(\"";
-    size_t query_size = strlen(insert_query) + strlen(buf);
-    char *insert_query_with_msg = malloc(query_size);
-    char *query = malloc(query_size + 3);
-    snprintf(insert_query_with_msg, query_size, "%s%s", insert_query, buf);
-    query_size += strlen(user_id) + 2;
-    char *insert_query_with_user_id = malloc(query_size);
-    snprintf(insert_query_with_user_id, query_size, "%s\",%s", insert_query_with_msg, user_id);
-    snprintf(query, query_size + 3, "%s);", insert_query_with_user_id);
+    char *query = malloc(strlen(insert_query) + strlen(buf) + 4);
+    strcat(query, insert_query);
+    strcat(query, buf);
+    strcat(query, "\",");
+    strcat(query, user_id);
+    strcat(query, ");");
     printf("%s\n", query);
-    return mysql_query(conn, query);
+    int result = mysql_query(conn, query);
+    free(query);
+    return result;
 }
 
 int select_user_by_name(char *buf, MYSQL *conn) {
     const char *select_one = "select id from users where name=\"";
-    char *query_by_name = malloc(strlen(select_one) + strlen(buf) + 2);
+    char *query_by_name = malloc(strlen(select_one) + strlen(buf) + 3);
 
     if (!query_by_name) {
         printf("Allocation in select_user_by_name failure\n");
+        return 0;
     } else {
         strcat(query_by_name, select_one);
         strcat(query_by_name, buf);

@@ -46,11 +46,13 @@ int main(int argc, char *argv[]) {
     }
 
     while (1) {
-
+        if (stop_flag == 1) {
+            free(args);
+            free(streams);
+            free(send_arguments);
+            exit(0);
+        }
     }
-    free(args);
-    free(streams);
-    free(send_arguments);
 }
 
 void *receive_message(void *args) {
@@ -77,6 +79,10 @@ void *send_message(void *args) {
             close(actual_args->socket_fd);
             error("Failure Sending Message\n");
             exit(1);
+        }
+        if (strcmp("exit\n", buffer) == 0) {
+            close(actual_args->socket_fd);
+            stop_flag = 1;
         }
     }
 }
