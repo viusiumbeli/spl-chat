@@ -65,8 +65,9 @@ void *client_work(void *args) {
 char *register_new_client(MYSQL *conn, int connect_d) {
     if (say(connect_d, "Enter your name") != -1) {
         char *buf = malloc(buf_len);
-//        read_in(connect_d, buf, buf_len);
-//        create_new_user(buf, conn);
+        read_in(connect_d, buf, buf_len);
+        printf("%s", buf);
+        create_new_user(buf, conn);
         return buf;
     }
     return "UNDEFINED";

@@ -19,11 +19,13 @@ typedef struct {
 
 typedef struct {
     int socket_fd;
-} client_receive_arguments;
+} client_send_arguments;
 
 
 void error(char *msg);
 
 void *receive_message(void *args);
+
+void *send_message(void *args);
 
 #endif //SPL_CHAT_CLIENT_H

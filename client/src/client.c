@@ -40,9 +40,18 @@ int main(int argc, char *argv[]) {
         error("Can't create receive stream");
     }
 
-    while(1){
+    client_send_arguments *send_arguments = malloc(sizeof(send_arguments));
+    send_arguments->socket_fd = socket_fd;
+    if (pthread_create(&streams[1], NULL, send_message, send_arguments) == -1) {
+        error("Can't create send stream");
+    }
+
+    while (1) {
 
     }
+    free(args);
+    free(streams);
+    free(send_arguments);
 }
 
 void *receive_message(void *args) {
@@ -58,6 +67,20 @@ void *receive_message(void *args) {
         printf("%s\n", buffer);
     }
     close(actual_args->socket_fd);
+}
+
+void *send_message(void *args) {
+    char buffer[MAXSIZE];
+    ssize_t num;
+    client_send_arguments *actual_args = args;
+    while (1) {
+        fgets(buffer, MAXSIZE - 1, stdin);
+        if ((send(actual_args->socket_fd, buffer, strlen(buffer), 0)) == -1) {
+            close(actual_args->socket_fd);
+            error("Failure Sending Message\n");
+            exit(1);
+        }
+    }
 }
 
 void error(char *msg) {
