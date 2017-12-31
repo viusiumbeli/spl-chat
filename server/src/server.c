@@ -44,30 +44,29 @@ void *client_work(void *args) {
 
     char *name = register_new_client(actual_args->conn, actual_connect_d);
 
-    if (send_to_client_all_messages(actual_connect_d, actual_args->conn) != -1) {
-        while (1) {
-            char *buf = malloc(buf_len);
-            size_t len = read_in(actual_connect_d, buf, buf_len);
-            send_all_clients(buf, actual_args->node, actual_connect_d, name);
-            if (strncmp("exit", buf, len - 1) == 0) {
-                close(actual_connect_d);
-                remove_node(actual_args->node, actual_connect_d);
-                break;
-            } else {
-                if (save_message(buf, actual_args->conn, name)) {
-                    printf("Error: %s [%d]\n", mysql_error(actual_args->conn), mysql_errno(actual_args->conn));
-                }
-            }
-        }
-    }
+//    if (send_to_client_all_messages(actual_connect_d, actual_args->conn) != -1) {
+//        while (1) {
+//            char *buf = malloc(buf_len);
+//            size_t len = read_in(actual_connect_d, buf, buf_len);
+//            send_all_clients(buf, actual_args->node, actual_connect_d, name);
+//            if (strncmp("exit", buf, len - 1) == 0) {
+//                close(actual_connect_d);
+//                remove_node(actual_args->node, actual_connect_d);
+//                break;
+//            } else {
+//                if (save_message(buf, actual_args->conn, name)) {
+//                    printf("Error: %s [%d]\n", mysql_error(actual_args->conn), mysql_errno(actual_args->conn));
+//                }
+//            }
+//        }
+//    }
 }
 
 char *register_new_client(MYSQL *conn, int connect_d) {
     if (say(connect_d, "Enter your name") != -1) {
-        say(connect_d, "\r\n");
         char *buf = malloc(buf_len);
-        read_in(connect_d, buf, buf_len);
-        create_new_user(buf, conn);
+//        read_in(connect_d, buf, buf_len);
+//        create_new_user(buf, conn);
         return buf;
     }
     return "UNDEFINED";
