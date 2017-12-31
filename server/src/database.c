@@ -43,26 +43,13 @@ int get_all_messages_with_author(MYSQL *conn) {
             "inner join users on messages.user_id=users.id");
 }
 
-int save_message(char *buf, MYSQL *conn, char *name) {
-    char *user_id = "0";
-    MYSQL_RES *res;
-    MYSQL_ROW row;
-    if (select_user_by_name(name, conn)) {
-        printf("Error2: %s [%d]\n", mysql_error(conn), mysql_errno(conn));
-    } else {
-        res = mysql_store_result(conn);
-        row = mysql_fetch_row(res);
-        if (strcmp(row[0], "0") != 0) {
-            user_id = row[0];
-        }
-    }
-
+int save_message(char *buf, MYSQL *conn, char *id) {
     const char *insert_query = "insert into messages (message, user_id) values(\"";
-    char *query = malloc(strlen(insert_query) + strlen(buf) + 4);
+    char *query = malloc(strlen(insert_query) + strlen(buf) + 5);
     strcat(query, insert_query);
     strcat(query, buf);
-    strcat(query, "\",");
-    strcat(query, user_id);
+    strcat(query, "\", ");
+    strcat(query, id);
     strcat(query, ");");
     printf("%s\n", query);
     int result = mysql_query(conn, query);

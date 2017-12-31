@@ -23,7 +23,7 @@ void print_database_info();
 
 int get_all_messages_with_author(MYSQL *conn);
 
-int save_message(char *buf, MYSQL *conn, char *name);
+int save_message(char *buf, MYSQL *conn, char *id);
 
 int create_users_table(MYSQL *conn);
 

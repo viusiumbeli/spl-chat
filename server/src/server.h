@@ -14,6 +14,11 @@ const int port = 3501;
 const int limit_listeners = 10;
 const size_t buf_len = 255;
 
+typedef struct {
+    char *id;
+    char *name;
+} client_t;
+
 ssize_t say(int socket, char *s);
 
 void bind_to_port(int socket);
@@ -34,7 +39,7 @@ void *client_work(void *args);
 
 int send_to_client_all_messages(int connect_d, MYSQL *conn);
 
-char *register_new_client(MYSQL *conn, int connect_d);
+client_t register_new_client(MYSQL *conn, int connect_d);
 
 typedef struct {
     int connect_d_arg;

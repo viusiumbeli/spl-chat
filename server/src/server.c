@@ -42,41 +42,56 @@ void *client_work(void *args) {
     client_work_arguments *actual_args = args;
     int actual_connect_d = actual_args->connect_d_arg;
 
-    char *name = register_new_client(actual_args->conn, actual_connect_d);
+    client_t client = register_new_client(actual_args->conn, actual_connect_d);
     char *buf;
 
     if (send_to_client_all_messages(actual_connect_d, actual_args->conn) != -1) {
         while (1) {
             buf = calloc(buf_len, 1);
-            size_t len = read_in(actual_connect_d, buf, buf_len);
-            send_all_clients(buf, actual_args->node, actual_connect_d, name);
+            read_in(actual_connect_d, buf, buf_len);
+            send_all_clients(buf, actual_args->node, actual_connect_d, client.name);
             if (strcmp("exit", buf) == 0) {
                 close(actual_connect_d);
                 remove_node(actual_args->node, actual_connect_d);
                 break;
-            }
-//            else {
-//            if (save_message(buf, actual_args->conn, name)) {
-//                printf("Error: %s [%d]\n", mysql_error(actual_args->conn), mysql_errno(actual_args->conn));
-//            } else {
-//                MYSQL_RES *res = mysql_store_result(actual_args->conn);
-//                mysql_free_result(res);
+            } else {
+                if (save_message(buf, actual_args->conn, client.id)) {
+                    printf("Error: %s [%d]\n", mysql_error(actual_args->conn), mysql_errno(actual_args->conn));
+                } else {
+                    MYSQL_RES *res = mysql_store_result(actual_args->conn);
+                    mysql_free_result(res);
 
-//            }
-//            }
+                }
+            }
             free(buf);
         }
     }
 }
 
-char *register_new_client(MYSQL *conn, int connect_d) {
+client_t register_new_client(MYSQL *conn, int connect_d) {
+    MYSQL_RES *res;
+    MYSQL_ROW row;
+
+    client_t client;
+
     if (say(connect_d, "Enter your name\n") != -1) {
         char *buf = malloc(buf_len);
         read_in(connect_d, buf, buf_len);
         create_new_user(buf, conn);
-        return buf;
+
+        select_user_by_name(buf, conn);
+        res = mysql_store_result(conn);
+        while ((row = mysql_fetch_row(res))) {
+            client.id = row[0];
+        }
+
+        client.name = buf;
+
+        return client;
     }
-    return "UNDEFINED";
+    client.name = "admin";
+    client.id = "0";
+    return client;
 }
 
 int send_to_client_all_messages(int connect_d, MYSQL *conn) {
