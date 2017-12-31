@@ -47,11 +47,15 @@ int save_message(char *buf, MYSQL *conn, char *name) {
     char *user_id = "0";
     MYSQL_RES *res;
     MYSQL_ROW row;
-    select_user_by_name(name, conn);
-    res = mysql_store_result(conn);
-    row = mysql_fetch_row(res);
-    if (strcmp(row[0], "0") != 0) {
-        user_id = row[0];
+    if (!select_user_by_name(name, conn)) {
+        printf("Error: %s [%d]\n", mysql_error(conn), mysql_errno(conn));
+    } else {
+        res = mysql_store_result(conn);
+        row = mysql_fetch_row(res);
+        if (strcmp(row[0], "0") != 0) {
+            user_id = row[0];
+        }
+        printf("%p\n", row);
     }
 
     const char *insert_query = "insert into messages (message, user_id) values(\"";
@@ -69,18 +73,24 @@ int save_message(char *buf, MYSQL *conn, char *name) {
 
 int select_user_by_name(char *buf, MYSQL *conn) {
     const char *select_one = "select id from users where name=\"";
-    size_t query_size = strlen(select_one) + strlen(buf);
-    char *insert_query_with_msg = malloc(query_size);
-    char *query = malloc(query_size + 2);
-    snprintf(insert_query_with_msg, query_size, "%s%s", select_one, buf);
-    snprintf(query, query_size + 2, "%s\";", insert_query_with_msg);
-    printf("%s\n", query);
-    return mysql_query(conn, query);
+    char *query_by_name = malloc(strlen(select_one) + strlen(buf) + 2);
+
+    if (!query_by_name) {
+        printf("Allocation in select_user_by_name failure\n");
+    } else {
+        strcat(query_by_name, select_one);
+        strcat(query_by_name, buf);
+        strcat(query_by_name, "\";");
+        printf("%s\n", query_by_name);
+        int res = mysql_query(conn, query_by_name);
+        free(query_by_name);
+        return res;
+    }
 }
 
 int create_new_user(char *buf, MYSQL *conn) {
     const char *insert_query = "insert into users (name) values(\"";
-    char *query = malloc(strlen(insert_query) + strlen(buf) + 3);
+    char *query = calloc(strlen(insert_query) + strlen(buf) + 3, 1);
     if (!query) {
         printf("Allocation in create_new_user failure\n");
     } else {

@@ -5,7 +5,6 @@ int main(int argc, char *argv[]) {
     struct sockaddr_in server_info;
     struct hostent *he;
     int socket_fd;
-    char buff[MAXSIZE];
 
 
     if (argc != 2) {
@@ -71,7 +70,6 @@ void *receive_message(void *args) {
 
 void *send_message(void *args) {
     char buffer[MAXSIZE];
-    ssize_t num;
     client_send_arguments *actual_args = args;
     while (1) {
         fgets(buffer, MAXSIZE - 1, stdin);

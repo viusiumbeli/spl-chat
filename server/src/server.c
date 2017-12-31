@@ -79,15 +79,14 @@ int send_to_client_all_messages(int connect_d, MYSQL *conn) {
     res = mysql_store_result(conn);
     char *full_msg;
     while ((row = mysql_fetch_row(res))) {
-        full_msg = malloc(strlen(row[0]) + strlen(row[1]) + 4);
+        full_msg = malloc(strlen(row[0]) + strlen(row[1]) + 3);
         strcat(full_msg, row[1]);
         strcat(full_msg, ": ");
         strcat(full_msg, row[0]);
-        strcat(full_msg, "\r\n");
+        strcat(full_msg, "\n");
         say(connect_d, full_msg);
     }
 
-    mysql_free_result(res);
     return 0;
 }
 
