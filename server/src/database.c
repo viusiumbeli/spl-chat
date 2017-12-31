@@ -80,13 +80,14 @@ int select_user_by_name(char *buf, MYSQL *conn) {
 
 int create_new_user(char *buf, MYSQL *conn) {
     const char *insert_query = "insert into users (name) values(\"";
-    size_t query_size = strlen(insert_query) + strlen(buf);
-    char *insert_query_with_msg = malloc(query_size);
-    char *query = malloc(query_size + 3);
-    snprintf(insert_query_with_msg, query_size, "%s%s", insert_query, buf);
-    snprintf(query, query_size + 3, "%s\");", insert_query_with_msg);
+    char *query = malloc(strlen(insert_query) + strlen(buf) + 3);
+    strcat(query, insert_query);
+    strcat(query, buf);
+    strcat(query, "\");");
     printf("%s\n", query);
-    return mysql_query(conn, query);
+    int res = mysql_query(conn, query);
+    free(query);
+    return res;
 }
 
 void create_tables(MYSQL *conn) {
