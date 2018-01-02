@@ -1,6 +1,16 @@
 #include <string.h>
 #include "database.h"
 
+const char *host = "localhost";
+const char *user = "root";
+const char *password = "root";
+const char *database = "chat";
+
+const unsigned int database_port = 3306;
+const char *unix_socket = NULL;
+const unsigned int flag = 0;
+
+
 MYSQL *connect_to_database() {
     MYSQL *conn;
     MYSQL_RES *res;
@@ -51,6 +61,7 @@ int save_message(char *buf, MYSQL *conn, char *id) {
     char *query = calloc((strlen(insert_query) + strlen(buf) + 5) * sizeof(void *), 1);
     if (!query) {
         printf("Allocation in save_message failure\n");
+        return 0;
     } else {
         strcat(query, insert_query);
         strcat(query, buf);
@@ -87,6 +98,7 @@ int create_new_user(char *buf, MYSQL *conn) {
     char *query = calloc(strlen(insert_query) + strlen(buf) + 3, 1);
     if (!query) {
         printf("Allocation in create_new_user failure\n");
+        return 0;
     } else {
         strcat(query, insert_query);
         strcat(query, buf);

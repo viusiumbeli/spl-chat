@@ -62,7 +62,9 @@ void *client_work(void *args) {
                 }
             }
         }
+        return NULL;
     }
+    return NULL;
 }
 
 client_t register_new_client(MYSQL *conn, int connect_d) {

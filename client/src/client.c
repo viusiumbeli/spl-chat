@@ -68,6 +68,7 @@ void *receive_message(void *args) {
         printf("%.*s", (int) num, buffer);
     }
     close(actual_args->socket_fd);
+    return NULL;
 }
 
 void *send_message(void *args) {
