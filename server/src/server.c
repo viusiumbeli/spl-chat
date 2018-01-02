@@ -43,11 +43,10 @@ void *client_work(void *args) {
     int actual_connect_d = actual_args->connect_d_arg;
 
     client_t client = register_new_client(actual_args->conn, actual_connect_d);
-    char *buf;
+    char *buf = malloc(buf_len);
 
     if (send_to_client_all_messages(actual_connect_d, actual_args->conn) != -1) {
         while (1) {
-            buf = calloc(buf_len, 1);
             read_in(actual_connect_d, buf, buf_len);
             send_all_clients(buf, actual_args->node, actual_connect_d, client.name);
             if (strcmp("exit", buf) == 0) {
@@ -60,10 +59,8 @@ void *client_work(void *args) {
                 } else {
                     MYSQL_RES *res = mysql_store_result(actual_args->conn);
                     mysql_free_result(res);
-
                 }
             }
-            free(buf);
         }
     }
 }
@@ -107,6 +104,7 @@ int send_to_client_all_messages(int connect_d, MYSQL *conn) {
         strcat(full_msg, row[0]);
         strcat(full_msg, "\n");
         say(connect_d, full_msg);
+        free(full_msg);
     }
 
     return 0;
@@ -117,7 +115,7 @@ void send_all_clients(char *msg, node_t *list, int connect_d, char *name) {
     while (list->next != NULL) {
         list = list->next;
         if (list->val != connect_d) {
-            full_msg = malloc(strlen(msg) + strlen(name) + 4);
+            full_msg = calloc((strlen(msg) + strlen(name) + 4) * sizeof(void *), 1);
             strcat(full_msg, name);
             strcat(full_msg, ": ");
             strcat(full_msg, msg);

@@ -3,6 +3,7 @@
 
 MYSQL *connect_to_database() {
     MYSQL *conn;
+    MYSQL_RES *res;
 
     conn = mysql_init(NULL);
 
@@ -11,6 +12,8 @@ MYSQL *connect_to_database() {
         exit(1);
     } else {
         printf("Connection to db successful\n");
+        res = mysql_store_result(conn);
+        mysql_free_result(res);
         return conn;
     }
 }
@@ -24,8 +27,8 @@ int create_messages_table(MYSQL *conn) {
             "id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,"
             "message TEXT,"
             "user_id INT,"
-            "FOREIGN KEY (user_id)\n"
-            "        REFERENCES users(id)\n"
+            "FOREIGN KEY (user_id)"
+            "        REFERENCES users(id)"
             "        ON DELETE CASCADE);"
     );
 }
@@ -45,16 +48,20 @@ int get_all_messages_with_author(MYSQL *conn) {
 
 int save_message(char *buf, MYSQL *conn, char *id) {
     const char *insert_query = "insert into messages (message, user_id) values(\"";
-    char *query = malloc(strlen(insert_query) + strlen(buf) + 5);
-    strcat(query, insert_query);
-    strcat(query, buf);
-    strcat(query, "\", ");
-    strcat(query, id);
-    strcat(query, ");");
-    printf("%s\n", query);
-    int result = mysql_query(conn, query);
-    free(query);
-    return result;
+    char *query = calloc((strlen(insert_query) + strlen(buf) + 5) * sizeof(void *), 1);
+    if (!query) {
+        printf("Allocation in save_message failure\n");
+    } else {
+        strcat(query, insert_query);
+        strcat(query, buf);
+        strcat(query, "\", ");
+        strcat(query, id);
+        strcat(query, ");");
+        printf("%s\n", query);
+        int result = mysql_query(conn, query);
+        free(query);
+        return result;
+    }
 }
 
 int select_user_by_name(char *buf, MYSQL *conn) {
@@ -93,18 +100,18 @@ int create_new_user(char *buf, MYSQL *conn) {
 
 void create_tables(MYSQL *conn) {
     MYSQL_RES *res;
-    if (!create_messages_table(conn)) {
+    if (create_users_table(conn)) {
         printf("Error: %s [%d]\n", mysql_error(conn), mysql_errno(conn));
     } else {
-        printf("Messages table created\n");
+        printf("Users table created\n");
         res = mysql_store_result(conn);
         mysql_free_result(res);
     }
 
-    if (!create_users_table(conn)) {
+    if (create_messages_table(conn)) {
         printf("Error: %s [%d]\n", mysql_error(conn), mysql_errno(conn));
     } else {
-        printf("Users table created\n");
+        printf("Messages table created\n");
         res = mysql_store_result(conn);
         mysql_free_result(res);
     }

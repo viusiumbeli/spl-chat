@@ -12,7 +12,7 @@
 
 const int port = 3501;
 const int limit_listeners = 10;
-const size_t buf_len = 255;
+const size_t buf_len = 1024;
 
 typedef struct {
     char *id;
