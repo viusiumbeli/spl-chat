@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS= -std=c11
+CFLAGS= -pedantic -std=c11 -Wall -Werror
 
 all: client.o
 	$(CC) $(CFLAGS) -pthread ./build/client.o -o ./build/client

@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS= -std=c11
+CFLAGS= -pedantic -std=c11 -Wall -Werror
 
 all: server.o list.o database.o
 	$(CC) $(CFLAGS) -pthread ./build/server.o ./build/database.o ./build/list.o $(shell mysql_config --libs) -o ./build/server $(shell mysql_config --cflags)
