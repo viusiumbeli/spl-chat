@@ -5,6 +5,7 @@ all: server.o list.o database.o
 	$(CC) $(CFLAGS) -pthread ./build/server.o ./build/database.o ./build/list.o $(shell mysql_config --libs) -o ./build/server $(shell mysql_config --cflags)
 
 server.o:
+	mkdir ./build
 	$(CC) $(CFLAGS) -pthread -c ./src/server.c -o ./build/server.o
 
 database.o:
