@@ -18,10 +18,10 @@ MYSQL *connect_to_database() {
     conn = mysql_init(NULL);
 
     if (!mysql_real_connect(conn, host, user, password, database, database_port, unix_socket, flag)) {
-        printf("Error: %s [%d]\n", mysql_error(conn), mysql_errno(conn));
+        fprintf(stderr,"Error: %s [%d]\n", mysql_error(conn), mysql_errno(conn));
         exit(1);
     } else {
-        printf("Connection to db successful\n");
+        printf("%s\n","Connection to db successful");
         res = mysql_store_result(conn);
         mysql_free_result(res);
         return conn;
@@ -60,7 +60,7 @@ int save_message(char *buf, MYSQL *conn, char *id) {
     const char *insert_query = "insert into messages (message, user_id) values(\"";
     char *query = calloc((strlen(insert_query) + strlen(buf) + 5) * sizeof(void *), 1);
     if (!query) {
-        printf("Allocation in save_message failure\n");
+        fprintf(stderr,"%s\n","Allocation in save_message failure");
         return 0;
     } else {
         strcat(query, insert_query);
@@ -80,7 +80,7 @@ int select_user_by_name(char *buf, MYSQL *conn) {
     char *query_by_name = malloc(strlen(select_one) + strlen(buf) + 3);
 
     if (!query_by_name) {
-        printf("Allocation in select_user_by_name failure\n");
+        fprintf(stderr,"%s\n","Allocation in select_user_by_name failure");
         return 0;
     } else {
         strcat(query_by_name, select_one);
@@ -97,7 +97,7 @@ int create_new_user(char *buf, MYSQL *conn) {
     const char *insert_query = "insert into users (name) values(\"";
     char *query = calloc(strlen(insert_query) + strlen(buf) + 3, 1);
     if (!query) {
-        printf("Allocation in create_new_user failure\n");
+        fprintf(stderr,"%s\n","Allocation in create_new_user failure");
         return 0;
     } else {
         strcat(query, insert_query);
@@ -113,7 +113,7 @@ int create_new_user(char *buf, MYSQL *conn) {
 void create_tables(MYSQL *conn) {
     MYSQL_RES *res;
     if (create_users_table(conn)) {
-        printf("Error: %s [%d]\n", mysql_error(conn), mysql_errno(conn));
+        fprintf(stderr, "Error: %s [%d]\n", mysql_error(conn), mysql_errno(conn));
     } else {
         printf("Users table created\n");
         res = mysql_store_result(conn);
@@ -121,7 +121,7 @@ void create_tables(MYSQL *conn) {
     }
 
     if (create_messages_table(conn)) {
-        printf("Error: %s [%d]\n", mysql_error(conn), mysql_errno(conn));
+        fprintf(stderr,"Error: %s [%d]\n", mysql_error(conn), mysql_errno(conn));
     } else {
         printf("Messages table created\n");
         res = mysql_store_result(conn);

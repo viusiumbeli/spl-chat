@@ -28,10 +28,10 @@ void remove_node(struct node *node, int value) {
 }
 
 void print_list(struct node *node) {
-    printf("{connections}\n");
+    printf("%s\n","{connections}");
     while (node->next != NULL) {
         node = node->next;
         printf("%i\n", node->val);
     }
-    printf("{connections}\n");
+    printf("%s\n","{connections}");
 }

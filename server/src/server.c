@@ -55,7 +55,7 @@ void *client_work(void *args) {
                 break;
             } else {
                 if (save_message(buf, actual_args->conn, client.id)) {
-                    printf("Error: %s [%d]\n", mysql_error(actual_args->conn), mysql_errno(actual_args->conn));
+                    fprintf(stderr,"Error: %s [%d]\n", mysql_error(actual_args->conn), mysql_errno(actual_args->conn));
                 } else {
                     MYSQL_RES *res = mysql_store_result(actual_args->conn);
                     mysql_free_result(res);
@@ -139,7 +139,7 @@ size_t read_in(int socket, char *buf, size_t len) {
         c = recv(socket, s, slen, 0);
     }
     if (c < 0) {
-        printf("An error occurred while receiving the message\n");
+        fprintf(stderr,"%s\n","An error occurred while receiving the message");
     } else {
         if (c == 0) {
             buf[0] = '\0';
@@ -158,7 +158,7 @@ int connect_client(int socket) {
     if (connect_d == -1) {
         error("Can't open second socket");
     } else {
-        printf("Opened second socket\n");
+        printf("%s\n","Opened second socket");
     }
     return connect_d;
 }
@@ -177,7 +177,7 @@ int open_listener_socket() {
     if (s == -1) {
         error("Can't open socket");
     } else {
-        printf("Socket opened\n");
+        printf("%s\n","Socket opened");
     }
 
     return s;
@@ -188,7 +188,7 @@ void bind_to_port(int socket) {
     if (setsockopt(socket, SOL_SOCKET, SO_REUSEADDR, (char *) &reuse, sizeof(int))) {
         error("Can't set reuse param");
     } else {
-        printf("Set reuse param\n");
+        printf("%s\n","Set reuse param");
     }
 
     struct sockaddr_in name;
@@ -199,16 +199,16 @@ void bind_to_port(int socket) {
     if (c == -1) {
         error("Can't bind to socket");
     } else {
-        printf("Bound to socket\n");
+        printf("%s\n","Bound to socket");
     }
 }
 
 ssize_t say(int socket, char *s) {
     ssize_t result = send(socket, s, strlen(s), 0);
     if (result == -1) {
-        printf("An error occurred while sending the message\n");
+        fprintf(stderr,"%s\n","An error occurred while sending the message");
     } else {
-        printf("Sent the message\n");
+        printf("%s\n","Sent the message");
     }
     return result;
 }

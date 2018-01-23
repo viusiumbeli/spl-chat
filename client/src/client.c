@@ -8,18 +8,15 @@ int main(int argc, char *argv[]) {
 
 
     if (argc != 2) {
-        fprintf(stderr, "Usage: client hostname\n");
-        exit(1);
+        error("Usage: client hostname");
     }
 
     if ((he = gethostbyname(argv[1])) == NULL) {
-        fprintf(stderr, "Cannot get host name\n");
-        exit(1);
+        error("Cannot get host name");
     }
 
     if ((socket_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
-        fprintf(stderr, "Socket Failure!!\n");
-        exit(1);
+        error("Socket Failure!!");
     }
 
     memset(&server_info, 0, sizeof(server_info));
@@ -62,7 +59,7 @@ void *receive_message(void *args) {
     while (1) {
         num = recv(actual_args->socket_fd, buffer, sizeof(buffer), 0);
         if (num <= 0) {
-            printf("Either Connection Closed or Error\n");
+            fprintf(stderr,"%s\n","Either Connection Closed or Error");
             break;
         }
         printf("%.*s", (int) num, buffer);
@@ -89,6 +86,6 @@ void *send_message(void *args) {
 }
 
 void error(char *msg) {
-    printf("%s\n", msg);
+    fprintf(stderr, "%s\n", msg);
     exit(1);
 }
