@@ -29,4 +29,8 @@ void *receive_message(void *args);
 
 void *send_message(void *args);
 
+void check_connection(int socket_fd, const struct hostent *he);
+
+void check_input_data(int argc);
+
 #endif //SPL_CHAT_CLIENT_H
