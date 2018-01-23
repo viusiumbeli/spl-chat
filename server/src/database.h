@@ -12,13 +12,13 @@ void print_database_info();
 
 int get_all_messages_with_author(MYSQL *conn);
 
-int save_message(char *buf, MYSQL *conn, char *id);
+int save_message(const char *buf, MYSQL *conn, const char *id);
 
 int create_users_table(MYSQL *conn);
 
-int select_user_by_name(char *buf, MYSQL *conn);
+int select_user_by_name(const char *buf, MYSQL *conn);
 
-int create_new_user (char *buf, MYSQL *conn);
+int create_new_user(const char *buf, MYSQL *conn);
 
 void create_tables(MYSQL *conn);
 

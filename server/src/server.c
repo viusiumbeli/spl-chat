@@ -8,21 +8,21 @@ int main() {
     printf("\n");
 
 
-    int listener_d = open_listener_socket();
+    const int listener_d = open_listener_socket();
 
     bind_to_port(listener_d);
 
     set_limit_listeners(listener_d);
 
-    pthread_t *streams = malloc(sizeof(pthread_t) * limit_listeners);
+    pthread_t *const streams = malloc(sizeof(pthread_t) * limit_listeners);
 
-    struct node *list = malloc(sizeof(struct node ));
+    struct node *list = malloc(sizeof(struct node));
     list->next = NULL;
-    client_work_arguments *args = malloc(sizeof(args));
+    client_work_arguments *const args = malloc(sizeof(args));
 
     int i = 0;
     while (1) {
-        int connect_d = connect_client(listener_d);
+        const int connect_d = connect_client(listener_d);
         add_node(list, connect_d);
         args->connect_d_arg = connect_d;
         args->node = list;
@@ -40,10 +40,10 @@ int main() {
 
 void *client_work(void *args) {
     client_work_arguments *actual_args = args;
-    int actual_connect_d = actual_args->connect_d_arg;
+    const int actual_connect_d = actual_args->connect_d_arg;
 
-    client_t client = register_new_client(actual_args->conn, actual_connect_d);
-    char *buf = malloc(buf_len);
+    const client_t client = register_new_client(actual_args->conn, actual_connect_d);
+    char *const buf = malloc(buf_len);
 
     if (send_to_client_all_messages(actual_connect_d, actual_args->conn) != -1) {
         while (1) {
@@ -55,7 +55,7 @@ void *client_work(void *args) {
                 break;
             } else {
                 if (save_message(buf, actual_args->conn, client.id)) {
-                    fprintf(stderr,"Error: %s [%d]\n", mysql_error(actual_args->conn), mysql_errno(actual_args->conn));
+                    fprintf(stderr, "Error: %s [%d]\n", mysql_error(actual_args->conn), mysql_errno(actual_args->conn));
                 } else {
                     MYSQL_RES *res = mysql_store_result(actual_args->conn);
                     mysql_free_result(res);
@@ -67,14 +67,14 @@ void *client_work(void *args) {
     return NULL;
 }
 
-client_t register_new_client(MYSQL *conn, int connect_d) {
+client_t register_new_client(MYSQL *const conn, const int connect_d) {
     MYSQL_RES *res;
     MYSQL_ROW row;
 
     client_t client;
 
     if (say(connect_d, "Enter your name\n") != -1) {
-        char *buf = malloc(buf_len);
+        char *const buf = malloc(buf_len);
         read_in(connect_d, buf, buf_len);
         create_new_user(buf, conn);
 
@@ -93,7 +93,7 @@ client_t register_new_client(MYSQL *conn, int connect_d) {
     return client;
 }
 
-int send_to_client_all_messages(int connect_d, MYSQL *conn) {
+int send_to_client_all_messages(const int connect_d, MYSQL *const conn) {
     MYSQL_RES *res;
     MYSQL_ROW row;
     get_all_messages_with_author(conn);
@@ -112,7 +112,7 @@ int send_to_client_all_messages(int connect_d, MYSQL *conn) {
     return 0;
 }
 
-void send_all_clients(char *msg, struct node  *list, int connect_d, char *name) {
+void send_all_clients(const char *const msg, const struct node *list, const int connect_d, const char *const name) {
     char *full_msg;
     while (list->next != NULL) {
         list = list->next;
@@ -128,7 +128,7 @@ void send_all_clients(char *msg, struct node  *list, int connect_d, char *name) 
     }
 }
 
-size_t read_in(int socket, char *buf, size_t len) {
+size_t read_in(const int socket, char *const buf, size_t len) {
     char *s = buf;
     size_t slen = len;
     ssize_t c = recv(socket, s, slen, 0);
@@ -139,7 +139,7 @@ size_t read_in(int socket, char *buf, size_t len) {
         c = recv(socket, s, slen, 0);
     }
     if (c < 0) {
-        fprintf(stderr,"%s\n","An error occurred while receiving the message");
+        fprintf(stderr, "%s\n", "An error occurred while receiving the message");
     } else {
         if (c == 0) {
             buf[0] = '\0';
@@ -151,19 +151,19 @@ size_t read_in(int socket, char *buf, size_t len) {
     return len - slen;
 }
 
-int connect_client(int socket) {
-    struct sockaddr_storage client_addr;
+int connect_client(const int socket) {
+    const struct sockaddr_storage client_addr;
     unsigned int address_size = sizeof(client_addr);
     int connect_d = accept(socket, (struct sockaddr *) &client_addr, &address_size);
     if (connect_d == -1) {
         error("Can't open second socket");
     } else {
-        printf("%s\n","Opened second socket");
+        printf("%s\n", "Opened second socket");
     }
     return connect_d;
 }
 
-void set_limit_listeners(int socket) {
+void set_limit_listeners(const int socket) {
     if (listen(socket, limit_listeners) == -1) {
         error("Can't listen port");
     } else {
@@ -172,23 +172,23 @@ void set_limit_listeners(int socket) {
 }
 
 int open_listener_socket() {
-    int s = socket(PF_INET, SOCK_STREAM, 0);
+    const int s = socket(PF_INET, SOCK_STREAM, 0);
 
     if (s == -1) {
         error("Can't open socket");
     } else {
-        printf("%s\n","Socket opened");
+        printf("%s\n", "Socket opened");
     }
 
     return s;
 }
 
-void bind_to_port(int socket) {
-    int reuse = 1;
+void bind_to_port(const int socket) {
+    const int reuse = 1;
     if (setsockopt(socket, SOL_SOCKET, SO_REUSEADDR, (char *) &reuse, sizeof(int))) {
         error("Can't set reuse param");
     } else {
-        printf("%s\n","Set reuse param");
+        printf("%s\n", "Set reuse param");
     }
 
     struct sockaddr_in name;
@@ -199,21 +199,21 @@ void bind_to_port(int socket) {
     if (c == -1) {
         error("Can't bind to socket");
     } else {
-        printf("%s\n","Bound to socket");
+        printf("%s\n", "Bound to socket");
     }
 }
 
-ssize_t say(int socket, char *s) {
+ssize_t say(const int socket, const char *const s) {
     ssize_t result = send(socket, s, strlen(s), 0);
     if (result == -1) {
-        fprintf(stderr,"%s\n","An error occurred while sending the message");
+        fprintf(stderr, "%s\n", "An error occurred while sending the message");
     } else {
-        printf("%s\n","Sent the message");
+        printf("%s\n", "Sent the message");
     }
     return result;
 }
 
-void error(char *msg) {
+void error(const char *const msg) {
     printf("%s\n", msg);
     exit(1);
 }

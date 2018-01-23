@@ -19,13 +19,14 @@ typedef struct {
     char *name;
 } client_t;
 
-ssize_t say(int socket, char *s);
+ssize_t say(int socket, const char *s);
+
 
 void bind_to_port(int socket);
 
 int open_listener_socket();
 
-void error(char *msg);
+void error(const char *msg);
 
 void set_limit_listeners(int socket);
 
@@ -33,7 +34,7 @@ int connect_client(int socket);
 
 size_t read_in(int socket, char *buf, size_t len);
 
-void send_all_clients(char *msg, struct node *list, int connect_d, char *name);
+void send_all_clients(const char *msg, const struct node *list, int connect_d, const char *name);
 
 void *client_work(void *args);
 

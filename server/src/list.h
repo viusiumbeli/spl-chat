@@ -7,10 +7,10 @@ struct node {
     struct node *next;
 };
 
-void add_node(struct node  *node, int value);
+void add_node(struct node *node, int value);
 
 void remove_node(struct node *node, int value);
 
-void print_list(struct node *node);
+void print_list(const struct node *node);
 
 #endif //SPL_CHAT_LIST_H

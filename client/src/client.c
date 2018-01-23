@@ -3,7 +3,7 @@
 int main(int argc, char *argv[]) {
 
     struct sockaddr_in server_info;
-    struct hostent *he;
+    const struct hostent *he;
     int socket_fd;
 
 
@@ -29,14 +29,14 @@ int main(int argc, char *argv[]) {
     }
 
 
-    struct client_receive_arguments *args = malloc(sizeof(args));
+    struct client_receive_arguments *const args = malloc(sizeof(args));
     args->socket_fd = socket_fd;
-    pthread_t *streams = malloc(sizeof(pthread_t) * 2);
+    pthread_t *const streams = malloc(sizeof(pthread_t) * 2);
     if (pthread_create(&streams[0], NULL, receive_message, args) == -1) {
         error("Can't create receive stream");
     }
 
-    struct client_send_arguments *send_arguments = malloc(sizeof(send_arguments));
+    struct client_send_arguments *const send_arguments = malloc(sizeof(send_arguments));
     send_arguments->socket_fd = socket_fd;
     if (pthread_create(&streams[1], NULL, send_message, send_arguments) == -1) {
         error("Can't create send stream");
@@ -55,7 +55,7 @@ int main(int argc, char *argv[]) {
 void *receive_message(void *args) {
     ssize_t num;
     char buffer[MAXSIZE];
-    struct client_receive_arguments *actual_args = args;
+    const struct client_receive_arguments *const actual_args = args;
     while (1) {
         num = recv(actual_args->socket_fd, buffer, sizeof(buffer), 0);
         if (num <= 0) {
@@ -70,7 +70,7 @@ void *receive_message(void *args) {
 
 void *send_message(void *args) {
     char buffer[MAXSIZE];
-    struct client_send_arguments *actual_args = args;
+    const struct client_send_arguments *const actual_args = args;
     while (1) {
         fgets(buffer, MAXSIZE - 1, stdin);
         if ((send(actual_args->socket_fd, buffer, strlen(buffer), 0)) == -1) {
@@ -85,7 +85,7 @@ void *send_message(void *args) {
     }
 }
 
-void error(char *msg) {
+void error(char *const msg) {
     fprintf(stderr, "%s\n", msg);
     exit(1);
 }

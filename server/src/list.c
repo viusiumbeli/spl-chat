@@ -2,7 +2,7 @@
 #include <malloc.h>
 #include "list.h"
 
-void add_node(struct node  *node, int value) {
+void add_node(struct node  *node, const int value) {
     while (node->next != NULL) {
         node = node->next;
     }
@@ -16,7 +16,7 @@ void add_node(struct node  *node, int value) {
 
 }
 
-void remove_node(struct node *node, int value) {
+void remove_node(struct node *node, const int value) {
     struct node *previous;
     while (node->next != NULL) {
         previous = node;
@@ -27,7 +27,7 @@ void remove_node(struct node *node, int value) {
     }
 }
 
-void print_list(struct node *node) {
+void print_list(const struct node *node) {
     printf("%s\n","{connections}");
     while (node->next != NULL) {
         node = node->next;
