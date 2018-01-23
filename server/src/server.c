@@ -18,7 +18,7 @@ int main() {
 
     struct node *list = malloc(sizeof(struct node));
     list->next = NULL;
-    client_work_arguments *const args = malloc(sizeof(args));
+    struct client_work_arguments*const args = malloc(sizeof(args));
 
     int i = 0;
     while (1) {
@@ -39,10 +39,10 @@ int main() {
 }
 
 void *client_work(void *args) {
-    client_work_arguments *actual_args = args;
+    struct client_work_arguments *actual_args = args;
     const int actual_connect_d = actual_args->connect_d_arg;
 
-    const client_t client = register_new_client(actual_args->conn, actual_connect_d);
+    const struct client_t client = register_new_client(actual_args->conn, actual_connect_d);
     char *const buf = malloc(buf_len);
 
     if (send_to_client_all_messages(actual_connect_d, actual_args->conn) != -1) {
@@ -67,11 +67,11 @@ void *client_work(void *args) {
     return NULL;
 }
 
-client_t register_new_client(MYSQL *const conn, const int connect_d) {
+struct client_t register_new_client(MYSQL *const conn, const int connect_d) {
     MYSQL_RES *res;
     MYSQL_ROW row;
 
-    client_t client;
+    struct client_t client;
 
     if (say(connect_d, "Enter your name\n") != -1) {
         char *const buf = malloc(buf_len);

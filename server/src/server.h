@@ -14,10 +14,10 @@ const int port = 3501;
 const int limit_listeners = 10;
 const size_t buf_len = 1024;
 
-typedef struct {
+struct client_t{
     char *id;
     char *name;
-} client_t;
+};
 
 ssize_t say(int socket, const char *s);
 
@@ -40,12 +40,12 @@ void *client_work(void *args);
 
 int send_to_client_all_messages(int connect_d, MYSQL *conn);
 
-client_t register_new_client(MYSQL *conn, int connect_d);
+struct client_t register_new_client(MYSQL *conn, int connect_d);
 
-typedef struct {
+struct client_work_arguments{
     int connect_d_arg;
     struct node *node;
     MYSQL *conn;
-} client_work_arguments;
+};
 
 #endif //SPL_CHAT_SERVER_H
