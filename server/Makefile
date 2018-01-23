@@ -21,3 +21,4 @@ clean-project:
 	rm -rf ./build/server
 
 clean: clean-project clean-o-files
+	rm -rf ./build

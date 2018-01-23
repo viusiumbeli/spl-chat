@@ -2,15 +2,15 @@
 #define SPL_CHAT_LIST_H
 
 
-typedef struct node {
+struct node {
     int val;
     struct node *next;
-} node_t;
+};
 
-void add_node(node_t *node, int value);
+void add_node(struct node  *node, int value);
 
-void remove_node(node_t *node, int value);
+void remove_node(struct node *node, int value);
 
-void print_list(node_t *node);
+void print_list(struct node *node);
 
 #endif //SPL_CHAT_LIST_H

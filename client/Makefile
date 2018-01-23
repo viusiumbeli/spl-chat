@@ -9,4 +9,4 @@ client.o:
 	$(CC) $(CFLAGS) -c ./src/client.c -o ./build/client.o
 
 clean:
-	rm -rf ./build/*
+	rm -rf ./build

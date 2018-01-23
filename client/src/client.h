@@ -13,15 +13,15 @@
 #define PORT 3501
 #define MAXSIZE 1024
 
-typedef struct {
+struct client_receive_arguments {
     int socket_fd;
-} client_receive_arguments;
+};
 
-typedef struct {
+struct client_send_arguments {
     int socket_fd;
-} client_send_arguments;
+};
 
-int stop_flag=0;
+int stop_flag = 0;
 
 void error(char *msg);
 

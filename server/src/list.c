@@ -2,12 +2,12 @@
 #include <malloc.h>
 #include "list.h"
 
-void add_node(node_t *node, int value) {
+void add_node(struct node  *node, int value) {
     while (node->next != NULL) {
         node = node->next;
     }
 
-    node->next = malloc(sizeof(node_t));
+    node->next = malloc(sizeof(struct node ));
     if (node->next != NULL) {
         node = node->next;
         node->val = value;
@@ -16,8 +16,8 @@ void add_node(node_t *node, int value) {
 
 }
 
-void remove_node(node_t *node, int value) {
-    node_t *previous;
+void remove_node(struct node *node, int value) {
+    struct node *previous;
     while (node->next != NULL) {
         previous = node;
         node = node->next;
@@ -27,7 +27,7 @@ void remove_node(node_t *node, int value) {
     }
 }
 
-void print_list(node_t *node) {
+void print_list(struct node *node) {
     printf("{connections}\n");
     while (node->next != NULL) {
         node = node->next;

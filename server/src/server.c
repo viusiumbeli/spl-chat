@@ -16,7 +16,7 @@ int main() {
 
     pthread_t *streams = malloc(sizeof(pthread_t) * limit_listeners);
 
-    node_t *list = malloc(sizeof(node_t));
+    struct node *list = malloc(sizeof(struct node ));
     list->next = NULL;
     client_work_arguments *args = malloc(sizeof(args));
 
@@ -112,7 +112,7 @@ int send_to_client_all_messages(int connect_d, MYSQL *conn) {
     return 0;
 }
 
-void send_all_clients(char *msg, node_t *list, int connect_d, char *name) {
+void send_all_clients(char *msg, struct node  *list, int connect_d, char *name) {
     char *full_msg;
     while (list->next != NULL) {
         list = list->next;
